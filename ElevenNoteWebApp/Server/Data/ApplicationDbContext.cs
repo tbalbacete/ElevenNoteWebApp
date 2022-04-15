@@ -17,5 +17,8 @@ namespace ElevenNoteWebApp.Server.Data
             IOptions<OperationalStoreOptions> operationalStoreOptions) : base(options, operationalStoreOptions)
         {
         }
+
+        public DbSet<NoteEntity> Notes { get; set; }
+        public DbSet<CategoryEntity> Categories { get; set; }
     }
 }

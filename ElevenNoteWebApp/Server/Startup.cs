@@ -1,5 +1,7 @@
 using ElevenNoteWebApp.Server.Data;
 using ElevenNoteWebApp.Server.Models;
+using ElevenNoteWebApp.Server.Services.Category;
+using ElevenNoteWebApp.Server.Services.Note;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -26,6 +28,9 @@ namespace ElevenNoteWebApp.Server
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddScoped<INoteService, NoteService>();
+            services.AddScoped<ICategoryService, CategoryService>();
+
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
