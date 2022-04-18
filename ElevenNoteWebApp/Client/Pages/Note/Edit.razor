@@ -1,0 +1,72 @@
+﻿@page "/note/edit/{NoteId:int}"
+@using ElevenNoteWebApp.Shared.Models.Note
+@attribute [Authorize]
+@inject HttpClient http
+@using ElevenNoteWebApp.Shared.Models.Category
+@inject NavigationManager navigation
+
+<h3>Edit Note: @Model.Title</h3>
+
+@if (ErrorMessage != null)
+{
+    <h5 class="text-danger">@ErrorMessage</h5>
+}
+
+@if (Categories == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="container">
+        <EditForm Model="@Model" OnValidSubmit="@HandleSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+            <div class="form-group">
+                <label>Title</label>
+                <InputText class="form-control" @bind-Value="Model.Title" />
+            </div>
+
+            <div class="form-group">
+                <label>Content</label>
+                <InputTextArea class="form-control" @bind-Value="Model.Content" />
+            </div>
+            <InputSelect class="form-control" @bind-Value="Model.CategoryId">
+                @foreach (var category in Categories)
+                {
+                    <option value="@category.Id">@category.Name</option>
+                }
+            </InputSelect>
+            <button type="submit" class="btn btn-primary btn-block mt-5">Submit</button>
+        </EditForm>
+    </div>
+}
+
+
+@code {
+    [Parameter]
+    public int NoteId { get; set; }
+    private NoteEdit Model { get; set; } = new();
+    private IEnumerable<CategoryListItem> Categories;
+    private string ErrorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Model = await http.GetFromJsonAsync<NoteEdit>($"/api/notes/{NoteId}");
+
+        Categories = await http.GetFromJsonAsync<IEnumerable<CategoryListItem>>("/api/Category/");
+    }
+
+    private async void HandleSubmit()
+    {
+        var createRes = await http.PutAsJsonAsync<NoteEdit>($"/api/notes/edit/{NoteId}", Model);
+        if (createRes.IsSuccessStatusCode)
+        {
+            navigation.NavigateTo($"/note/{NoteId}");
+        }
+        else
+        {
+            ErrorMessage = "Could not update your note right now. Please try again later.";
+        }
+    }
+}
